@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="screen_padding">16dp</dimen>
+    <dimen name="grid_spacing">12dp</dimen>
+    <dimen name="number_text_size">28sp</dimen>
+</resources>

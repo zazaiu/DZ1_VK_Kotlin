@@ -1,0 +1,5 @@
+<resources>
+    <integer name="initial_count">12</integer>
+    <integer name="first_number">1</integer>
+    <integer name="column_count">3</integer>
+</resources>

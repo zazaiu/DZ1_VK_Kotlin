@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Работа со списком</string>
+    <string name="add_number">Добавить элемент</string>
+    <string name="number_format">%1$d</string>
+</resources>
