@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -26,12 +25,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
+
+private const val GRID_WEIGHT = 1f
+private const val SQUARE_ASPECT_RATIO = 1f
+private const val PARITY_DIVISOR = 2
+private const val EVEN_REMAINDER = 0
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,7 +76,7 @@ fun NumberGridScreen() {
             columns = GridCells.Fixed(columns),
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(GRID_WEIGHT),
             horizontalArrangement = Arrangement.spacedBy(spacing),
             verticalArrangement = Arrangement.spacedBy(spacing)
         ) {
@@ -95,7 +100,7 @@ fun NumberGridScreen() {
 @Composable
 fun NumberSquare(number: Int) {
     val background = colorResource(
-        if (number % 2 == 0) {
+        if (number % PARITY_DIVISOR == EVEN_REMAINDER) {
             R.color.even_background
         } else {
             R.color.odd_background
@@ -110,7 +115,7 @@ fun NumberSquare(number: Int) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f)
+            .aspectRatio(SQUARE_ASPECT_RATIO)
             .background(background),
         contentAlignment = Alignment.Center
     ) {
@@ -124,7 +129,7 @@ fun NumberSquare(number: Int) {
 
 @Composable
 private fun resourcesFontSize(): Float {
-    val resources = androidx.compose.ui.platform.LocalContext.current.resources
+    val resources = LocalContext.current.resources
     return resources.getDimension(R.dimen.number_text_size) /
             resources.displayMetrics.scaledDensity
 }
