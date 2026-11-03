@@ -32,6 +32,10 @@ import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.listSaver
 
 private const val GRID_WEIGHT = 1f
 private const val SQUARE_ASPECT_RATIO = 1f
@@ -58,12 +62,30 @@ fun NumberGridScreen() {
     val columns = integerResource(R.integer.column_count)
     val firstNumber = integerResource(R.integer.first_number)
 
-    var count by rememberSaveable {
-        mutableIntStateOf(initialCount)
-    }
-
     val spacing = dimensionResource(R.dimen.grid_spacing)
     val screenPadding = dimensionResource(R.dimen.screen_padding)
+
+    val numberListSaver = listSaver<List<Int>, Int>(
+        save = { it },
+        restore = { it.toList() }
+    )
+
+    // Числа, которые сейчас отображаются.
+    var numbers by rememberSaveable(stateSaver = numberListSaver) {
+        mutableStateOf(
+            List(initialCount) { index -> firstNumber + index }
+        )
+    }
+
+    // Стек: последнее удалённое число находится в конце.
+    var deletedNumbers by rememberSaveable(stateSaver = numberListSaver) {
+        mutableStateOf(emptyList<Int>())
+    }
+
+    // Следующий номер для создания нового квадрата.
+    var nextNumber by rememberSaveable {
+        mutableIntStateOf(firstNumber + initialCount)
+    }
 
     Column(
         modifier = Modifier
@@ -81,22 +103,38 @@ fun NumberGridScreen() {
             verticalArrangement = Arrangement.spacedBy(spacing)
         ) {
             items(
-                count = count,
-                key = { index -> index }
-            ) { index ->
-                NumberSquare(number = index + firstNumber)
+                items = numbers,
+                key = { number -> number }
+            ) { number ->
+                Box(
+                    modifier = Modifier.clickable {
+                        numbers = numbers - number
+                        deletedNumbers = deletedNumbers + number
+                    }
+                ) {
+                    NumberSquare(number = number)
+                }
             }
         }
 
         Button(
-            onClick = { count++ },
+            onClick = {
+                if (deletedNumbers.isNotEmpty()) {
+                    val restoredNumber = deletedNumbers.last()
+
+                    deletedNumbers = deletedNumbers.dropLast(1)
+                    numbers = numbers + restoredNumber
+                } else {
+                    numbers = numbers + nextNumber
+                    nextNumber++
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = stringResource(R.string.add_number))
         }
     }
 }
-
 @Composable
 fun NumberSquare(number: Int) {
     val background = colorResource(
